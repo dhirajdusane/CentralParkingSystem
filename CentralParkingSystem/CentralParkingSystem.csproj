@@ -62,17 +62,24 @@
     <Compile Include="CPSClientClass.cs" />
     <Compile Include="CPSMainClass.cs" />
     <Compile Include="CPSTestCases.cs" />
+    <Compile Include="CPS\CPSBuilder.cs" />
     <Compile Include="FileLogger.cs" />
+    <Compile Include="Interfaces\IBuilder.cs" />
+    <Compile Include="Interfaces\ICPSClient.cs" />
+    <Compile Include="Interfaces\ICPSMain.cs" />
+    <Compile Include="Interfaces\IVehicleTypeHandler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Request.cs" />
-    <Compile Include="Response.cs" />
     <Compile Include="VehicleTypeHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="TestFiles\RandomTestCase.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="TestFiles\TestCase1.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

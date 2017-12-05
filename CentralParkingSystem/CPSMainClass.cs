@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CentralParkingSystem.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -8,68 +9,43 @@ using System.Threading.Tasks;
 
 namespace CentralParkingSystem
 {
-    public class CPSMainClass
+    /// <summary>
+    /// This is main parking system class, It follows Visitor Pattern.
+    /// </summary>
+    public class CPSMainClass : ICPSMain
     {
-        private VehicleTypeHandler smallVehicleHandler;
-        private VehicleTypeHandler mediumVehicleHandler;
-        private VehicleTypeHandler largeVehicleHandler;
+        private Dictionary<string, IVehicleTypeHandler> parkingDictionary;
 
-        public const string SmallVehicle = "SV";
-        public const string MediumVehicle = "MV";
-        public const string LargeVehicle = "LV";
-        public const string MainCPSLog = "MainCPS";
-        static CPSMainClass()
+        public CPSMainClass()
         {
-            Instance = new CPSMainClass();
+            parkingDictionary = new Dictionary<string, IVehicleTypeHandler>();
+            FileLogger.Instance.TryAdd(LogFileName, new FileLogger(LogFileName));
         }
 
-        private CPSMainClass()
+        public void Attach(IVehicleTypeHandler typeHandler)
         {
-            FileLogger.Instance.Add(MainCPSLog, new FileLogger(MainCPSLog));
-            smallVehicleHandler = new VehicleTypeHandler(SmallVehicle, ReadSettingInt(SmallVehicle), MainCPSLog);
-            mediumVehicleHandler = new VehicleTypeHandler(MediumVehicle, ReadSettingInt(MediumVehicle), MainCPSLog);
-            largeVehicleHandler = new VehicleTypeHandler(LargeVehicle, ReadSettingInt(LargeVehicle), MainCPSLog);
-            
+            parkingDictionary.Add(typeHandler.TypeName, typeHandler);
         }
 
-        private int ReadSettingInt(string settingName)
+        public bool Accept(Request request)
         {
-            string value = ConfigurationManager.AppSettings[settingName];
-            int count;
-            int.TryParse(value, out count);
-            return count;
-        }
-
-        public static CPSMainClass Instance { get; private set; }
-
-        public bool AcceptVehicle(Request request)
-        {
-            switch (request.VehicleSize.ToUpper())
+            if (parkingDictionary.ContainsKey(request.VehicleSize))
+                return parkingDictionary[request.VehicleSize].HandleRequest(request);
+            else
             {
-                case SmallVehicle:
-                    return smallVehicleHandler.HandleRequest(request);
-                    //break;
+                StringBuilder builder = new StringBuilder();
+                foreach (var item in parkingDictionary.Keys)
+                    builder.Append(item + " ");
 
-                case MediumVehicle:
-                    return mediumVehicleHandler.HandleRequest(request);
-                    //break;
-
-                case LargeVehicle:
-                    return largeVehicleHandler.HandleRequest(request);
-                    //break;
-
-                default:
-                    Log(string.Format("{0} {1} invalid operation. Only {2} {3} {4} are only valid operation.",
-                        request.VehicleSize, request.Operation, SmallVehicle, MediumVehicle, LargeVehicle));
-                    return false;
-                    //break;
+                FileLogger.Log(LogFileName, string.Format("{0} {1} invalid operation. Only {2} are valid operation.",
+                        request.VehicleSize, request.Operation, builder.ToString()));
+                return false;
             }
         }
 
-        public void Log(string message)
+        public string LogFileName
         {
-            FileLogger.Instance[MainCPSLog].LogMessage(message);
-            Console.WriteLine(message);
+            get { return "MainCPS"; }
         }
     }
 }

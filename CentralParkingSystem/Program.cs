@@ -11,7 +11,7 @@ namespace CentralParkingSystem
         static void Main(string[] args)
         {
             CPSTestCases test = new CPSTestCases();
-            test.RunInputFiles();
+            test.RunRandomTest();
         }
     }
 }

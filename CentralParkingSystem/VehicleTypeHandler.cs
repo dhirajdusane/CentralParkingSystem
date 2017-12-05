@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CentralParkingSystem.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CentralParkingSystem
 {
-    public class VehicleTypeHandler
+    public class VehicleTypeHandler : IVehicleTypeHandler
     {
         private string shortName;
         private int maxCount,occupiedCount;
@@ -39,7 +40,7 @@ namespace CentralParkingSystem
                         else
                         {
                             occupiedCount++;
-                            Log(request.VehicleSize + " " + request.Operation + " : Remaining space - " + occupiedCount);
+                            LogRemainingSpaces(request);
                             return true;
                         }
 
@@ -52,21 +53,36 @@ namespace CentralParkingSystem
                         else
                         {
                             occupiedCount--;
-                            Log(request.VehicleSize + " " + request.Operation + " : Remaining space - " + occupiedCount);
+                            LogRemainingSpaces(request);
                             return true;
                         }
                     default:
-                        Log(string.Format("{0} {1} invalid operation. Only {2} {3} are only valid operation.", 
+                        Log(string.Format("{0} {1} invalid operation. Only {2} {3} are valid operation.", 
                             request.VehicleSize, request.Operation, IN, OUT));
                         return false;
                 }
             }
         }
 
+        private void LogRemainingSpaces(Request request)
+        {
+            Log(request.VehicleSize + " " + request.Operation + " : Remaining space - " + (maxCount - occupiedCount));
+        }
+
         public void Log(string message)
         {
             FileLogger.Instance[LogFileKeyName].LogMessage(message);
             Console.WriteLine(message);
+        }
+
+        public string TypeName
+        {
+            get { return shortName; }
+        }
+
+        public int MaxCount
+        {
+            get { return maxCount; }
         }
     }
 }

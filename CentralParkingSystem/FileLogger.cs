@@ -10,11 +10,11 @@ namespace CentralParkingSystem
 {
     public class FileLogger : IDisposable
     {
-        public static Dictionary<string, FileLogger> Instance { get; private set; }
+        public static ConcurrentDictionary<string, FileLogger> Instance { get; private set; }
 
         static FileLogger()
         {
-            Instance = new Dictionary<string, FileLogger>();
+            Instance = new ConcurrentDictionary<string,FileLogger>();
         }
 
         public FileLogger(string keyName)
@@ -27,9 +27,15 @@ namespace CentralParkingSystem
         private BlockingCollection<string> messageQueue;
         private string keyName;
 
+        public static void Log(string key, string message)
+        {
+            if (Instance.ContainsKey(key))
+                Instance[key].LogMessage(message);
+        }
+
         public void LogMessage(string message)
         {
-            messageQueue.Add(message + "\n");
+            messageQueue.Add(message + "\r\n");
         }
 
         private async void LogMessagesAsync()
